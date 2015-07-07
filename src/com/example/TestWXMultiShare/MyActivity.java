@@ -8,11 +8,13 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MyActivity extends Activity implements View.OnClickListener{
 
     private File[] files;
-    private String[] paths;
+    private List<String> paths = new ArrayList<String>();
 
     /**
      * Called when the activity is first created.
@@ -27,23 +29,28 @@ public class MyActivity extends Activity implements View.OnClickListener{
         files = root.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
-                if (pathname.getName().endsWith(".jpg"))
+                if (pathname.getName().endsWith(".JPEG"))
                     return true;
                 return false;
             }
         });
+
+        for(File file :files){
+            paths.add(file.getAbsolutePath());
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.share_btn1:
-                if(files == null || files.length == 0){
+                if(paths == null || paths.size() == 0){
                     Toast.makeText(this,"SD卡根目录下无.png格式照片",Toast.LENGTH_SHORT).show();
                 }else{
-                    ShareUtils.shareMultiPicToWXCircle(this, "你好，成功的分享了多张照片到微信",files);
+                    ShareUtils.share9PicsToWXCircle(this, "你好，成功的分享了多张照片到微信",paths);
                 }
                 break;
+            
         }
     }
 }

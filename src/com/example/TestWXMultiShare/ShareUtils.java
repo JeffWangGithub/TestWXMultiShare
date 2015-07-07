@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @title:
@@ -18,59 +19,66 @@ import java.util.ArrayList;
  */
 public class ShareUtils {
     /**
-     * 测试分享多张图片到朋友圈
+     * 不实用微信的SDK分享图片到好友
      * @param context
+     * @param path
      */
-    public static void shareMultiPicToWXCircle(Context context,String Kdescription,File... files){
-        //检查是否安装微信
-        boolean isInstallWeChart = isInstallWeChart(context);
-        if(!isInstallWeChart){
-            Toast.makeText(context,"没有安装微信",Toast.LENGTH_SHORT).show();
+    public static void sharePicToFriendNoSDK(Context context, String path) {
+        if(!isInstallWeChart(context)){
+            Toast.makeText(context,"您没有安装微信",Toast.LENGTH_SHORT).show();
             return;
         }
         Intent intent = new Intent();
-        ComponentName comp = new ComponentName("com.tencent.mm",
-                "com.tencent.mm.ui.tools.ShareToTimeLineUI");
+        ComponentName comp = new ComponentName("com.tencent.mm", "com.tencent.mm.ui.tools.ShareImgUI");
         intent.setComponent(comp);
-        intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+        intent.setAction("android.intent.action.SEND");
         intent.setType("image/*");
-        intent.putExtra("sns", "Text");
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Subject");
-        intent.putExtra(Intent.ACTION_ATTACH_DATA, "aaaaa");
-		ArrayList<Uri> imageUris = new ArrayList<Uri>();
-		for (File f : files) {
-			imageUris.add(Uri.fromFile(f));
-		}
-        intent.putExtra("Kdescription", Kdescription);
-		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
+        // intent.setFlags(0x3000001);
+        File f = new File(path);
+        if(f.exists()){
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(path)));
+        } else {
+            Toast.makeText(context,"文件不存在",Toast.LENGTH_SHORT).show();
+            return;
+        }
         context.startActivity(intent);
     }
 
 
-
-    public static void shareMultiPicToWXCircle(Context context,String... paths){
-        //检查是否安装微信
-        boolean isInstallWeChart = isInstallWeChart(context);
-        if(!isInstallWeChart){
-            Toast.makeText(context,"没有安装微信",Toast.LENGTH_SHORT).show();
+    /**
+     * 分享9图到朋友圈
+     *
+     * @param context
+     * @param Kdescription 9图上边输入框中的文案
+     * @param paths        本地图片的路径
+     */
+    public static void share9PicsToWXCircle(Context context, String Kdescription, List<String> paths) {
+        if (!isInstallWeChart(context)) {
+            Toast.makeText(context,"您没有安装微信",Toast.LENGTH_SHORT).show();
             return;
         }
         Intent intent = new Intent();
-        ComponentName comp = new ComponentName("com.tencent.mm",
-                "com.tencent.mm.ui.tools.ShareToTimeLineUI");
-        intent.setComponent(comp);
-        intent.setAction(Intent.ACTION_SEND_MULTIPLE);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_TEXT,"我是文字");
-        ArrayList<CharSequence> imagePathList = new ArrayList<CharSequence>();
-        for(String picPath: paths){
-            imagePathList.add(picPath);
+        intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.tools.ShareToTimeLineUI"));
+        intent.setAction("android.intent.action.SEND_MULTIPLE");
+
+        ArrayList<Uri> imageList = new ArrayList<Uri>();
+        for (String picPath : paths) {
+            File f = new File(picPath);
+            if (f.exists()) {
+                imageList.add(Uri.fromFile(f));
+            }
         }
-        intent.putCharSequenceArrayListExtra(Intent.EXTRA_STREAM, imagePathList);
+        if(imageList.size() == 0){
+            Toast.makeText(context,"图片不存在",Toast.LENGTH_SHORT).show();
+            return;
+        }
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_STREAM, imageList); //图片数据（支持本地图片的Uri形式）
+        intent.putExtra("Kdescription", Kdescription); //微信分享页面，图片上边的描述
         context.startActivity(intent);
     }
 
-    /**检查是否安装微信
+    /**不实用微信sdk检查是否安装微信
      * @param context
      * @return
      */
@@ -88,5 +96,6 @@ public class ShareUtils {
             return true;
         }
     }
+
 
 }

@@ -8,7 +8,7 @@
             android:id="@+id/share_btn1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ShareToWX"
+            android:text="ShareToWXCircle"
             android:onClick="onClick"/>
 </LinearLayout>
 
